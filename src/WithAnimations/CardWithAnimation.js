@@ -18,35 +18,36 @@ const barHeight = 50;
 const CardWithAnimation = (props) => {
 
     const [item] = useState(props);
-
-    const boxHeightRef = useRef(new Animated.Value(50)).current;
+    const boxHeightRef = useRef(new Animated.Value(0)).current;
     const [open, setOpen] = useState(false);
-    const [maxHeight, setMaxHeight] = useState(null);
-    const [minHeight, setMinHeight] = useState(null);
+    const [maxHeight, setMaxHeight] = useState(0);
 
-    
+    const boxHeight = boxHeightRef.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, maxHeight]
+    })
+    const rotate = boxHeightRef.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 3.14],        
+    })
 
     function seeMore() {
         console.log(open ? `${open} - Fechando` : `${open} - Abrindo`)
 
-        let toValue = open ? minHeight : maxHeight;
-        console.log(`minHeight: ${minHeight}`);
+        let toValue = open ? 0 : 1;
+        let duration = open ? 200 : 300;
+
         console.log(`maxHeight : ${maxHeight}`);
 
         Animated.timing(boxHeightRef, {
             toValue: toValue,
-            duration: 200,
+            duration: duration,
+            useNativeDriver: true,
             easing: Easing.linear,
             //easing: Easing.elastic(2),
-            useNativeDriver: true
         }).start(setOpen(!open))
 
 
-    }
-
-    function log() {
-        console.log('\n')
-        console.log('============> LOG');
     }
 
     function _setMaxHeight(event) {
@@ -54,43 +55,43 @@ const CardWithAnimation = (props) => {
         console.log(`${item.id} - (F)setMaxHeight: ${event.nativeEvent.layout.height}`);
     }
 
-    function _setMinHeight(event) {
-        setMinHeight(event.nativeEvent.layout.height);
-        console.log(`${item.id} - (F)setMinHeight: ${event.nativeEvent.layout.height}`);
-    }
-
     //useCode(() => { }, []);
 
     return (
-        <Animated.View
-            style={[styles.boxOut, { height: boxHeightRef }]}
-            onLayout={(event) => _setMaxHeight(event)} 
-            >
+        <Animated.View style={[styles.boxOut]}>
             <TouchableWithoutFeedback onPress={seeMore}>
-                <View
-                    style={styles.boxBar}
-                    onLayout={(event) => _setMinHeight(event)} >
+                <View style={styles.boxBar}                >
                     <Text style={styles.boxBarTitle}>{item.id} - {item.name}</Text>
-                    <View style={styles.boxBarIconContainer} >
+                    <Animated.View
+                        style={[styles.boxBarIconContainer,
+                        {
+                            transform: [{ rotate: rotate }]
+                        }
+                        ]} >
                         <IconFA name="chevron-down" size={20} style={styles.boxBarIcon} />
-                    </View>
+                    </Animated.View>
                 </View>
             </TouchableWithoutFeedback>
-            <View style={styles.conteudoContainer}>
-                <Text style={styles.conteudoText}>{item.description}</Text>
-            </View>
-        </Animated.View>
+            <Animated.View
+                style={{ overflow: 'hidden', width: '100%', height: boxHeight }}
+                onLayout={(event) => _setMaxHeight(event)}
+            >
+                <View style={styles.conteudoContainer}>
+                    <Text style={styles.conteudoText}>{item.description}</Text>
+                </View>
+            </Animated.View>
+        </Animated.View >
     )
 };
+
 
 const styles = StyleSheet.create({
     boxOut: {
         flexWrap: "wrap",
         flexDirection: "row",
-        backgroundColor: '#FC0',
+        backgroundColor: '#f8f8f8',
         width: SCREEN_WIDTH - 50,
         marginBottom: 10,
-        overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -98,7 +99,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.29,
         shadowRadius: 4.65,
-        elevation: 1,
+        elevation: 7,
         borderRadius: 4,
     },
     boxBar: {
@@ -109,6 +110,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexDirection: 'row',
         padding: 10,
+        borderRadius: 4,
     },
     boxBarTitle: {
         color: '#f8f8f8',
@@ -130,8 +132,6 @@ const styles = StyleSheet.create({
     conteudoContainer: {
         padding: 10,
         flex: 1,
-        overflow: 'hidden',
-        backgroundColor: '#CF0'
     },
     conteudoText: {
         color: '#363636',
