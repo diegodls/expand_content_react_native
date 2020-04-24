@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 
 import IconFA from 'react-native-vector-icons/FontAwesome'
-import Animated, { useCode, Easing, interpolate } from 'react-native-reanimated';
+import Animated, { useCode, Easing, interpolate, Value, cond, eq, set, not, block } from 'react-native-reanimated';
+import { State, TapGestureHandler } from 'react-native-gesture-handler';
 
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -22,65 +23,69 @@ const CardWithAnimation = (props) => {
     const [open, setOpen] = useState(false);
     const [maxHeight, setMaxHeight] = useState(0);
 
+
+
+
     const boxHeight = boxHeightRef.interpolate({
         inputRange: [0, 1],
         outputRange: [0, maxHeight]
     })
     const rotate = boxHeightRef.interpolate({
         inputRange: [0, 1],
-        outputRange: [0, 3.14],        
+        outputRange: [0, 3.14],
     })
 
-    function seeMore() {
-        console.log(open ? `${open} - Fechando` : `${open} - Abrindo`)
-
-        let toValue = open ? 0 : 1;
-        let duration = open ? 200 : 300;
-
-        console.log(`maxHeight : ${maxHeight}`);
-
-        Animated.timing(boxHeightRef, {
-            toValue: toValue,
-            duration: duration,
-            useNativeDriver: true,
-            easing: Easing.linear,
-            //easing: Easing.elastic(2),
-        }).start(setOpen(!open))
-
-
-    }
-
-    function _setMaxHeight(event) {
+    function _setMaxHeight(event) { //função para pegar o tamanho total do componente
         event.nativeEvent.layout.height > maxHeight ? setMaxHeight(event.nativeEvent.layout.height) : setMaxHeight(maxHeight);
         console.log(`${item.id} - (F)setMaxHeight: ${event.nativeEvent.layout.height}`);
+
     }
 
-    //useCode(() => { }, []);
+    function tapGestureHandler(event) {
+        if (event.nativeEvent.state === State.ACTIVE) {
+            console.log('ACTIVE')
+            console.log(open ? `${open} - Fechando` : `${open} - Abrindo`);
+            let isMaxHeightHigh = maxHeight > 1000 ? maxHeight / 2 : maxHeight;
+            let toValue = open ? 0 : 1;
+            let duration = isMaxHeightHigh;
+            Animated.timing(boxHeightRef, {
+                toValue: toValue,
+                duration: duration,
+                useNativeDriver: true,
+                easing: Easing.linear,
+            }).start(setOpen(!open))
+        }
+    }
 
     return (
-        <Animated.View style={[styles.boxOut]}>
-            <TouchableWithoutFeedback onPress={seeMore}>
-                <View style={styles.boxBar}                >
-                    <Text style={styles.boxBarTitle}>{item.id} - {item.name}</Text>
-                    <Animated.View
-                        style={[styles.boxBarIconContainer,
-                        {
-                            transform: [{ rotate: rotate }]
-                        }
-                        ]} >
-                        <IconFA name="chevron-down" size={20} style={styles.boxBarIcon} />
-                    </Animated.View>
-                </View>
-            </TouchableWithoutFeedback>
-            <Animated.View
-                style={{ overflow: 'hidden', width: '100%', height: boxHeight }}
-                onLayout={(event) => _setMaxHeight(event)}
-            >
-                <View style={styles.conteudoContainer}>
-                    <Text style={styles.conteudoText}>{item.description}</Text>
-                </View>
-            </Animated.View>
-        </Animated.View >
+        <>
+
+            <Animated.View style={[styles.boxOut]}>
+                <TapGestureHandler
+                    onHandlerStateChange={event => tapGestureHandler(event)}
+                >
+                    <View style={styles.boxBar}                >
+                        <Text style={styles.boxBarTitle}>{item.id} - {item.name}</Text>
+                        <Animated.View
+                            style={[styles.boxBarIconContainer,
+                            {
+                                transform: [{ rotate: rotate }]
+                            }
+                            ]} >
+                            <IconFA name="chevron-down" size={20} style={styles.boxBarIcon} />
+                        </Animated.View>
+                    </View>
+                </TapGestureHandler>
+                <Animated.View
+                    style={{ overflow: 'hidden', width: '100%', height: boxHeight }}
+                    onLayout={(event) => _setMaxHeight(event)}
+                >
+                    <View style={styles.conteudoContainer}>
+                        <Text style={styles.conteudoText}>{item.description}</Text>
+                    </View>
+                </Animated.View>
+            </Animated.View >
+        </>
     )
 };
 
