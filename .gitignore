@@ -60,3 +60,4 @@ buck-out/
 
 #MyTests
 src/MyTests
+/android
