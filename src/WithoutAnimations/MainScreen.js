@@ -9,12 +9,9 @@ import {
   TouchableWithoutFeedback,
   Alert
 } from 'react-native';
-
-import IconFA from 'react-native-vector-icons/FontAwesome'
 import Card from './Card'
 
 const BACKGROUND_COLOR = '#f8eeee';
-
 
 const obj = [
   {

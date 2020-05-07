@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
 import {
   SafeAreaView,
-  View,
   StatusBar,
-  Text,
   StyleSheet,
-  Dimensions,
-  TouchableWithoutFeedback,
-  Alert,
   ScrollView
 } from 'react-native';
-
-
 import CardWithAnimation from './CardWithAnimation'
 
 const obj = [
@@ -239,12 +232,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: BACKGROUND_COLOR,
     alignItems: 'center',
-
   },
   scrollview: {
     paddingTop: 10,
     width: '100%'
-
   },
 })
 
