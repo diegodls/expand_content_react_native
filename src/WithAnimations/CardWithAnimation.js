@@ -1,15 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef,  } from 'react';
 import {
     View,
     Text,
     StyleSheet,
     Dimensions,
-    TouchableWithoutFeedback,
-
 } from 'react-native';
 
 import IconFA from 'react-native-vector-icons/FontAwesome'
-import Animated, { useCode, Easing, interpolate, Value, cond, eq, set, not, block } from 'react-native-reanimated';
+import Animated, { Easing, interpolate, Value} from 'react-native-reanimated';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
 
 
@@ -19,12 +17,9 @@ const barHeight = 50;
 const CardWithAnimation = (props) => {
 
     const [item] = useState(props);
-    const boxHeightRef = useRef(new Animated.Value(0)).current;
+    const boxHeightRef = useRef(new Value(0)).current;
     const [open, setOpen] = useState(false);
     const [maxHeight, setMaxHeight] = useState(0);
-
-
-
 
     const boxHeight = boxHeightRef.interpolate({
         inputRange: [0, 1],
@@ -36,15 +31,11 @@ const CardWithAnimation = (props) => {
     })
 
     function _setMaxHeight(event) { //função para pegar o tamanho total do componente
-        event.nativeEvent.layout.height > maxHeight ? setMaxHeight(event.nativeEvent.layout.height) : setMaxHeight(maxHeight);
-        console.log(`${item.id} - (F)setMaxHeight: ${event.nativeEvent.layout.height}`);
-
+        event.nativeEvent.layout.height > maxHeight ? setMaxHeight(event.nativeEvent.layout.height) : setMaxHeight(maxHeight);       
     }
 
     function tapGestureHandler(event) {
-        if (event.nativeEvent.state === State.ACTIVE) {
-            console.log('ACTIVE')
-            console.log(open ? `${open} - Fechando` : `${open} - Abrindo`);
+        if (event.nativeEvent.state === State.ACTIVE) {            
             let isMaxHeightHigh = maxHeight > 1000 ? maxHeight / 2 : maxHeight;
             let toValue = open ? 0 : 1;
             let duration = isMaxHeightHigh;
