@@ -1,4 +1,4 @@
-import React, { useState, useRef,  } from 'react';
+import React, { useState, useRef, } from 'react';
 import {
     View,
     Text,
@@ -7,8 +7,9 @@ import {
 } from 'react-native';
 
 import IconFA from 'react-native-vector-icons/FontAwesome'
-import Animated, { Easing, interpolate, Value} from 'react-native-reanimated';
+import Animated, { Easing, interpolate, Value, useCode, cond, eq, not, set } from 'react-native-reanimated';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
+import { withTransition, onGestureEvent } from 'react-native-redash';
 
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -17,45 +18,42 @@ const barHeight = 50;
 const CardWithAnimation = (props) => {
 
     const [item] = useState(props);
-    const boxHeightRef = useRef(new Value(0)).current;
-    const [open, setOpen] = useState(false);
     const [maxHeight, setMaxHeight] = useState(0);
 
-    const boxHeight = boxHeightRef.interpolate({
+    function _setMaxHeight(event) { //função para pegar o tamanho total do componente
+        event.nativeEvent.layout.height > maxHeight ? setMaxHeight(event.nativeEvent.layout.height) : setMaxHeight(maxHeight);
+    }
+
+    /* START - ANIMATION */
+    const state = useRef(new Value(State.UNDETERMINED)).current;
+    const gestureHandler = onGestureEvent({ state });
+
+    const open = new Value(0);
+    const duration = maxHeight > 1000 ? maxHeight / 2 : maxHeight;    
+    const transition = withTransition(open, { duration });
+
+    const boxHeight = interpolate(transition, {
         inputRange: [0, 1],
         outputRange: [0, maxHeight]
     })
-    const rotate = boxHeightRef.interpolate({
+    const rotate = interpolate(transition, {
         inputRange: [0, 1],
         outputRange: [0, 3.14],
     })
 
-    function _setMaxHeight(event) { //função para pegar o tamanho total do componente
-        event.nativeEvent.layout.height > maxHeight ? setMaxHeight(event.nativeEvent.layout.height) : setMaxHeight(maxHeight);       
-    }
+    useCode(() =>
+        cond(eq(state, State.END), set(open, not(open))), [open, state]);
 
-    function tapGestureHandler(event) {
-        if (event.nativeEvent.state === State.ACTIVE) {            
-            let isMaxHeightHigh = maxHeight > 1000 ? maxHeight / 2 : maxHeight;
-            let toValue = open ? 0 : 1;
-            let duration = isMaxHeightHigh;
-            Animated.timing(boxHeightRef, {
-                toValue: toValue,
-                duration: duration,
-                useNativeDriver: true,
-                easing: Easing.linear,
-            }).start(setOpen(!open))
-        }
-    }
+    /* END - ANIMATION */
 
     return (
         <>
 
             <Animated.View style={[styles.boxOut]}>
                 <TapGestureHandler
-                    onHandlerStateChange={event => tapGestureHandler(event)}
+                    {...gestureHandler}
                 >
-                    <View style={styles.boxBar}                >
+                    <Animated.View style={styles.boxBar}                >
                         <Text style={styles.boxBarTitle}>{item.id} - {item.name}</Text>
                         <Animated.View
                             style={[styles.boxBarIconContainer,
@@ -65,7 +63,7 @@ const CardWithAnimation = (props) => {
                             ]} >
                             <IconFA name="chevron-down" size={20} style={styles.boxBarIcon} />
                         </Animated.View>
-                    </View>
+                    </Animated.View>
                 </TapGestureHandler>
                 <Animated.View
                     style={{ overflow: 'hidden', width: '100%', height: boxHeight }}
