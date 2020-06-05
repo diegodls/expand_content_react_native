@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   SafeAreaView,
   StatusBar,
   StyleSheet,
   ScrollView
 } from 'react-native';
+import Card from './Card'
+import { items } from '../obj/items'
 
-import CardWithAnimation from './CardWithAnimation';
-import {items} from '../obj/items'
 
-const BACKGROUND_COLOR = '#FFF';
-
+const BACKGROUND_COLOR = '#f8eeee';
 const App = () => {
-
- const obj = items;
-
+  const obj = items;
   return (
     <>
       <StatusBar barStyle={'dark-content'} backgroundColor={BACKGROUND_COLOR} />
@@ -23,10 +20,10 @@ const App = () => {
           style={styles.scrollview}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ alignItems: 'center' }}
+          contentContainerStyle={{ alignItems: 'center' }}          
         >
-          {obj.map((item) => (
-            <CardWithAnimation {...{item}} key={item.id} />
+          {obj.map((item, index) => (
+            <Card {...{ item }} key={index} />
           ))}
         </ScrollView>
       </SafeAreaView>
@@ -39,6 +36,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: BACKGROUND_COLOR,
     alignItems: 'center',
+    paddingTop: 10,
   },
   scrollview: {
     paddingTop: 10,
