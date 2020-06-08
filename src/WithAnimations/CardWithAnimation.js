@@ -1,57 +1,43 @@
 import React, { useState, useRef, } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    Dimensions,
-} from 'react-native';
-
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import IconFA from 'react-native-vector-icons/FontAwesome'
-import Animated, { interpolate, Value, useCode, cond, eq, not, set } from 'react-native-reanimated';
+import Animated, { Value, useCode, cond, eq, not, set } from 'react-native-reanimated';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
-import { withTransition, onGestureEvent } from 'react-native-redash';
+import { withTransition, onGestureEvent, mix } from 'react-native-redash';
 
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const barHeight = 50;
 
-const CardWithAnimation = ({item}) => {
-   
+const CardWithAnimation = ({ item }) => {
+
     const [maxHeight, setMaxHeight] = useState(0);
 
-    function _setMaxHeight(event) { //função para pegar o tamanho total do componente
-        event.nativeEvent.layout.height > maxHeight ? setMaxHeight(event.nativeEvent.layout.height) : setMaxHeight(maxHeight);
+    function _setMaxHeight(event) { //set height for each component
+        event.nativeEvent.layout.height > maxHeight ?
+            setMaxHeight(event.nativeEvent.layout.height)
+            :
+            setMaxHeight(maxHeight);
     }
 
     /* START - ANIMATION */
     const state = useRef(new Value(State.UNDETERMINED)).current;
     const gestureHandler = onGestureEvent({ state });
-
     const open = new Value(0);
-    const duration = maxHeight > 1000 ? maxHeight / 2 : maxHeight;    
+    const duration = maxHeight > 1000 ? 500 : 250;
     const transition = withTransition(open, { duration });
-
-    const boxHeight = interpolate(transition, {
-        inputRange: [0, 1],
-        outputRange: [0, maxHeight]
-    })
-    const rotate = interpolate(transition, {
-        inputRange: [0, 1],
-        outputRange: [0, 3.14],
-    })
-
-    useCode(() =>
-        cond(eq(state, State.END), set(open, not(open))), [open, state]);
+    const boxHeight = mix(transition, 0, maxHeight);
+    const rotate = mix(transition, 0, Math.PI);
+    useCode(() => cond(eq(state, State.END), set(open, not(open))), [open, state]);
 
     /* END - ANIMATION */
 
     return (
         <>
 
-            <Animated.View style={[styles.boxOut]}>
-                <TapGestureHandler
-                    {...gestureHandler}
-                >
+            <TapGestureHandler
+                {...gestureHandler}
+            >
+                <Animated.View style={[styles.boxOut]}>
                     <Animated.View style={styles.boxBar}                >
                         <Text style={styles.boxBarTitle}>{item.id} - {item.name}</Text>
                         <Animated.View
@@ -63,20 +49,20 @@ const CardWithAnimation = ({item}) => {
                             <IconFA name="chevron-down" size={20} style={styles.boxBarIcon} />
                         </Animated.View>
                     </Animated.View>
-                </TapGestureHandler>
-                <Animated.View
-                    style={{ overflow: 'hidden', width: '100%', height: boxHeight }}
-                    onLayout={(event) => _setMaxHeight(event)}
-                >
-                    <View style={styles.conteudoContainer}>
-                        <Text style={styles.conteudoText}>{item.description}</Text>
-                    </View>
-                </Animated.View>
-            </Animated.View >
+
+                    <Animated.View
+                        style={{ overflow: 'hidden', width: '100%', height: boxHeight }}
+                        onLayout={(event) => _setMaxHeight(event)}
+                    >
+                        <View style={styles.conteudoContainer}>
+                            <Text style={styles.conteudoText}>{item.description}</Text>
+                        </View>
+                    </Animated.View>
+                </Animated.View >
+            </TapGestureHandler>
         </>
     )
 };
-
 
 const styles = StyleSheet.create({
     boxOut: {

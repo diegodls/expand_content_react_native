@@ -27,8 +27,7 @@ const Card = ({item}) => {
     })
 
     function _setMaxHeight(event) { //função para setar a altura total do componente
-        event.nativeEvent.layout.height > maxHeight ? setMaxHeight(event.nativeEvent.layout.height) : setMaxHeight(maxHeight);
-        console.log(event.nativeEvent.layout.height)
+        event.nativeEvent.layout.height > maxHeight ? setMaxHeight(event.nativeEvent.layout.height) : setMaxHeight(maxHeight);        
     }
 
     function tapGestureHandler(event) {
