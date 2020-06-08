@@ -1,38 +1,39 @@
 import React, { useState, useRef, } from 'react';
 import { View, Text, StyleSheet, Dimensions, } from 'react-native';
-
 import IconFA from 'react-native-vector-icons/FontAwesome'
 import Animated, { Easing, interpolate, Value } from 'react-native-reanimated';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
 
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const barHeight = 50;
 
-const Card = ({item}) => {
-   
-    const [open, setOpen] = useState(false);
-    const [maxHeight, setMaxHeight] = useState(0);
+const Card = ({ item }) => {
 
+    //Com a ponte javascript
+    const [open, setOpen] = useState(false);
+    const [maxHeight, setMaxHeight] = useState(0);        
     const boxHeightRef = useRef(new Value(0)).current;
 
     const boxHeight = boxHeightRef.interpolate({
         inputRange: [0, 1],
         outputRange: [0, maxHeight]
-    })
+    });
+
     const rotate = boxHeightRef.interpolate({
         inputRange: [0, 1],
         outputRange: [0, 3.14],
-    })
+    });
 
-    function _setMaxHeight(event) { //função para setar a altura total do componente
-        event.nativeEvent.layout.height > maxHeight ? setMaxHeight(event.nativeEvent.layout.height) : setMaxHeight(maxHeight);        
-    }
-
+    function _setMaxHeight(event) {
+        event.nativeEvent.layout.height > maxHeight ?
+            setMaxHeight(event.nativeEvent.layout.height)
+            :
+            setMaxHeight(maxHeight);
+    };
+    
     function tapGestureHandler(event) {
         if (event.nativeEvent.state === State.ACTIVE) {
-            let isMaxHeightHigh = maxHeight > 1000 ? maxHeight / 2 : maxHeight;
+            let isMaxHeightHigh = maxHeight > 1000 ? 500 : 250;
             let toValue = open ? 0 : 1;
             let duration = isMaxHeightHigh;
             Animated.timing(boxHeightRef, {
@@ -40,9 +41,9 @@ const Card = ({item}) => {
                 duration: duration,
                 useNativeDriver: true,
                 easing: Easing.linear,
-            }).start(setOpen(!open)) //para usar o callback sem erro, tem que usar o useRef
+            }).start(setOpen(!open))
         }
-    }
+    };
 
     return (
         <>
@@ -76,7 +77,6 @@ const Card = ({item}) => {
     )
 };
 
-
 const styles = StyleSheet.create({
     boxOut: {
         flexWrap: "wrap",
@@ -108,7 +108,6 @@ const styles = StyleSheet.create({
         color: '#f8f8f8',
         fontSize: 18,
         fontWeight: 'bold',
-
     },
     boxBarIconContainer: {
         width: 30,

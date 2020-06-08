@@ -10,9 +10,10 @@ const barHeight = 50;
 
 const CardWithAnimation = ({ item }) => {
 
+    //Somente Animações e Gestos
     const [maxHeight, setMaxHeight] = useState(0);
 
-    function _setMaxHeight(event) { //set height for each component
+    function _setMaxHeight(event) { 
         event.nativeEvent.layout.height > maxHeight ?
             setMaxHeight(event.nativeEvent.layout.height)
             :
